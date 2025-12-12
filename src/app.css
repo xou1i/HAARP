@@ -107,14 +107,18 @@ h6 {
     }
 }
 
-/* Glassmorphism Utilities */
+/* Glassmorphism Utilities (Updated for Vercel to match local rendering) */
 .glass {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(255, 255, 255, 0.15); /* ↑ بدل 0.10 — تحسين الوضوح ومنع زيادة الشفافية */
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
+
+    border: 1px solid rgba(255, 255, 255, 0.25); /* ↑ بدل 0.20 — يمنع ظهور الخلفية بشكل زائد */
+    
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.15); 
+    /* ↑ بدل 0.10 — يعطي نفس العمق اللي تشوفه بالـ Local */
 }
+
 
 .glass-nav-light {
     background: rgba(255, 255, 255, 0.9);
