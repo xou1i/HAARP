@@ -221,7 +221,7 @@
         {#if mounted}
             <!-- HEADLINE (Smaller) -->
             <h2
-                class="text-2xl mt-30 md:text-4xl font-bold text-center text-white mb-12 drop-shadow-md"
+                class="leading-normal text-2xl mt-30 md:text-4xl font-bold text-center text-white mb-12 drop-shadow-md headline-glow"
                 data-animate-id="java-title"
                 in:fadeFly={{ duration: 1000, delay: 300, y: 30 }}
             >

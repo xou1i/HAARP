@@ -3,8 +3,23 @@
 /* Fonts - Lexend Only */
 @import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
 
+* {
+  font-family: 'Lexend', sans-serif !important;
+}
+
+
 html {
     scroll-behavior: smooth;
+}
+
+@layer base {
+    :global(html),
+    :global(body),
+    :global(*),
+    :global(*::before),
+    :global(*::after) {
+        font-family: 'Lexend', sans-serif !important;
+    }
 }
 
 :root {
@@ -17,7 +32,7 @@ html {
 }
 
 body {
-    font-family: var(--font-body);
+    font-family: 'Lexend', sans-serif;
     /* Diagonal gradient background: Primary to Secondary */
     background: linear-gradient(135deg, var(--color-primary), var(--color-secondary));
     background-attachment: fixed;
@@ -36,12 +51,67 @@ h6 {
     font-family: var(--font-body);
 }
 
+:global(*) {
+    font-family: var(--font-body);
+}
+
+:global(html),
+:global(body) {
+    font-family: var(--font-body) !important;
+}
+
+@keyframes headlineShine {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
+@layer utilities {
+    .headline-glow {
+        background: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.25),
+            rgba(255, 255, 255, 0.95),
+            rgba(255, 255, 255, 0.25)
+        );
+        background-size: 200% 100%;
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent !important;
+        -webkit-text-fill-color: transparent;
+        animation: headlineShine 3s ease-in-out infinite;
+    }
+}
+
+/* Ensure headline glow is always applied even with Tailwind ordering */
+:global(.headline-glow),
+@layer base {
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        background: linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0.15),
+            rgba(255, 255, 255, 0.75),
+            rgba(255, 255, 255, 0.15)
+        );
+        background-size: 200% 100%;
+        background-clip: text;
+        -webkit-background-clip: text;
+        color: transparent !important;
+        -webkit-text-fill-color: transparent;
+        animation: headlineShine 3s ease-in-out infinite;
+    }
+}
+
 /* Glassmorphism Utilities */
 .glass {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    /* Soft glowing animated border */
     border: 1px solid rgba(255, 255, 255, 0.2);
     box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1);
 }
@@ -51,22 +121,15 @@ h6 {
     backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.3);
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1),
+                0 2px 4px -1px rgba(0, 0, 0, 0.06);
 }
 
 /* Animations */
 @keyframes float {
-    0% {
-        transform: translateY(0px);
-    }
-
-    50% {
-        transform: translateY(-10px);
-    }
-
-    100% {
-        transform: translateY(0px);
-    }
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
 }
 
 .animate-float {
@@ -79,9 +142,7 @@ h6 {
 
 /* Border Glow Animation */
 @keyframes border-glow {
-
-    0%,
-    100% {
+    0%, 100% {
         border-color: rgba(255, 255, 255, 0.2);
         box-shadow: 0 0 10px rgba(255, 255, 255, 0.05);
     }
@@ -94,4 +155,14 @@ h6 {
 
 .animate-border-glow {
     animation: border-glow 3s ease-in-out infinite;
+}
+
+.reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.45s cubic-bezier(.25,.1,.25,1), transform 0.45s cubic-bezier(.25,.1,.25,1);
+}
+.reveal-active {
+    opacity: 1;
+    transform: translateY(0);
 }
