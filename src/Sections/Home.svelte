@@ -1,9 +1,88 @@
 <script>
     import { onMount } from "svelte";
+    import { fly } from "svelte/transition";
+    import { useReveal } from "../lib/useReveal.js";
     import Shape from "../assets/Shape.png";
 
     let mounted = false;
     let visibleElements = new Set();
+    let showWeatherPanel = false;
+    let weatherData = null;
+    let isLoading = false;
+    let errorMessage = "";
+
+    const baghdadCoordinates = {
+        latitude: 33.3152,
+        longitude: 44.3661,
+    };
+
+    const weatherEndpoint = `https://api.open-meteo.com/v1/forecast?latitude=${baghdadCoordinates.latitude}&longitude=${baghdadCoordinates.longitude}&current=temperature_2m,relative_humidity_2m,wind_speed_10m&timezone=auto`;
+
+    async function fetchWeather() {
+        isLoading = true;
+        errorMessage = "";
+        weatherData = null;
+
+        try {
+            const response = await fetch(weatherEndpoint);
+            if (!response.ok) {
+                throw new Error("Failed to fetch weather");
+            }
+            const data = await response.json();
+            weatherData = data;
+        } catch (error) {
+            console.error("Weather fetch error:", error);
+            errorMessage = "Unable to load live weather. Please try again.";
+        } finally {
+            isLoading = false;
+        }
+    }
+
+    function openWeatherPanel() {
+        showWeatherPanel = true;
+        fetchWeather();
+    }
+
+    function closeWeatherPanel() {
+        showWeatherPanel = false;
+    }
+
+    $: weatherStats = weatherData
+        ? [
+                {
+                    label: "Temperature",
+                    value:
+                        weatherData.current?.temperature_2m ??
+                        weatherData.current_weather?.temperature ??
+                        null,
+                    unit:
+                        weatherData.current_units?.temperature_2m ??
+                        weatherData.current_weather_units?.temperature ??
+                        "°C",
+                },
+                {
+                    label: "Humidity",
+                    value:
+                        weatherData.current?.relative_humidity_2m ??
+                        weatherData.hourly?.relativehumidity_2m?.[0] ??
+                        null,
+                    unit:
+                        weatherData.current_units?.relative_humidity_2m ??
+                        "%",
+                },
+                {
+                    label: "Wind Speed",
+                    value:
+                        weatherData.current?.wind_speed_10m ??
+                        weatherData.current_weather?.windspeed ??
+                        null,
+                    unit:
+                        weatherData.current_units?.wind_speed_10m ??
+                        weatherData.current_weather_units?.windspeed ??
+                        "m/s",
+                },
+            ]
+        : [];
 
     onMount(() => {
         mounted = true;
@@ -70,7 +149,7 @@
             />
 
             <h2
-                class="relative leading-normal mt-20 z-10 text-xl md:text-3xl font-bold text-center text-white mb-6 drop-shadow-md headline-glow sm:text-3xl lg:text-4xl sm:mt-20"
+                class="relative leading-normal mt-10 z-10 text-xl md:text-3xl font-bold text-center text-white mb-6 drop-shadow-md headline-glow sm:text-3xl lg:text-4xl sm:mt-20"
                 data-animate-id="home-title"
                 in:fadeFly={{ duration: 250, delay: 100, y: 20 }}
             >
@@ -86,6 +165,19 @@
                 electronics, sensors, and software to read, analyze, and
                 visualize real-time climate data.
             </p>
+
+            <button
+    class="relative z-10 bg-[#8b3c59] mb-8 px-6 sm:px-7 py-3 rounded-full text-white text-sm sm:text-base font-semibold
+           shadow-lg border border-white/30
+           hover:bg-[#a0516e] hover:shadow-2xl
+           transition-colors transition-shadow duration-300 ease-in-out
+           cursor-pointer"
+    on:click={openWeatherPanel}
+    use:useReveal
+>
+    Open Live Weather
+</button>
+
 
             <div
                 class="relative z-10 glass p-8 rounded-2xl max-w-3xl w-full text-center mt-4 mb-16 animate-border-glow hover:scale-[1.01] transition-transform duration-400 w-full max-w-xs sm:max-w-xl md:max-w-2xl p-4 sm:p-6 md:p-8"
@@ -137,6 +229,69 @@
         {/if}
     </div>
 </section>
+
+{#if showWeatherPanel}
+    <div class="fixed inset-0 z-50 flex justify-end">
+        <div
+            class="absolute inset-0 bg-black/50 backdrop-blur-[1px]"
+            on:click={closeWeatherPanel}
+        />
+        <aside
+            class="relative h-full w-[92%] sm:w-[400px] md:w-[420px] glass border border-white/25 shadow-2xl rounded-l-3xl px-6 sm:px-7 py-6 sm:py-8 overflow-y-auto"
+            transition:fly={{ x: 420, duration: 250 }}
+            use:useReveal
+        >
+            <div class="flex items-start justify-between gap-4 mb-6" use:useReveal>
+                <div>
+                    <p class="text-xs uppercase tracking-wide text-white/70">
+                        Baghdad, IQ
+                    </p>
+                    <h3 class="text-xl font-bold text-white">Live Weather Dashboard</h3>
+                </div>
+                <button
+                    class="text-white/80 hover:text-white rounded-full p-2 hover:bg-white/10 transition-colors"
+                    aria-label="Close weather panel"
+                    on:click={closeWeatherPanel}
+                >
+                    ✕
+                </button>
+            </div>
+
+            {#if isLoading}
+                <p class="text-white/80 text-sm" use:useReveal>
+                    Loading live weather...
+                </p>
+            {:else if errorMessage}
+                <div class="space-y-4" use:useReveal>
+                    <p class="text-sm text-red-100">{errorMessage}</p>
+                    <button
+                        class="glass px-4 py-2 rounded-lg text-white text-sm font-semibold border border-white/30 hover:shadow-lg transition-shadow"
+                        on:click={fetchWeather}
+                    >
+                        Retry
+                    </button>
+                </div>
+            {:else if weatherData}
+                <div class="grid gap-4" use:useReveal>
+                    {#each weatherStats as stat (stat.label)}
+                        <div class="glass rounded-xl border border-white/25 p-4 shadow-lg" use:useReveal>
+                            <p class="text-xs text-white/70 uppercase tracking-wide">
+                                {stat.label}
+                            </p>
+                            <p class="text-2xl font-semibold text-white mt-1">
+                                {#if stat.value !== null}
+                                    {stat.value}{stat.unit}
+                                {:else}
+                                    --
+                                {/if}
+                            </p>
+                        </div>
+                    {/each}
+                </div>
+            {/if}
+        </aside>
+    </div>
+{/if}
 
 <style>
     @keyframes shapeGlowPulse {
