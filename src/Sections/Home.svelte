@@ -167,16 +167,13 @@
             </p>
 
             <button
-    class="relative z-10 bg-[#8b3c59] mb-8 px-6 sm:px-7 py-3 rounded-full text-white text-sm sm:text-base font-semibold
-           shadow-lg border border-white/30
-           hover:bg-[#a0516e] hover:shadow-2xl
-           transition-colors transition-shadow duration-300 ease-in-out
-           cursor-pointer"
-    on:click={openWeatherPanel}
-    use:useReveal
->
-    Open Live Weather
-</button>
+                class="relative z-10 bg-[#8b3c59] mb-8 px-6 sm:px-7 py-3 rounded-full text-white text-sm sm:text-base font-semibold shadow-lg border border-white/30 hover:bg-[#a0516e] hover:shadow-2xl transition-colors transition-shadow duration-300 ease-in-out cursor-pointer"
+                on:click={() => (window.location.href = "/weather")}
+                use:useReveal
+                in:fadeFly={{ duration: 250, delay: 170, y: 18 }}
+            >
+                Open Live Weather
+            </button>
 
 
             <div
